@@ -1,0 +1,1 @@
+In order for the slave code to compile the src and include folders need to be added to the project

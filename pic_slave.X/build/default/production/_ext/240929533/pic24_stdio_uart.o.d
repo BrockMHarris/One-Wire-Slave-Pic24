@@ -1,0 +1,23 @@
+build/default/production/_ext/240929533/pic24_stdio_uart.o:  \
+ ../../textbook_library/lib/src/pic24_stdio_uart.c  \
+ ../../textbook_library/lib/include/pic24_all.h  \
+ ../../textbook_library/lib/include/pic24_chip.h  \
+ ../../textbook_library/lib/include/pic24_libconfig.h  \
+ ../../textbook_library/lib/include/pic24_unittest.h  \
+ ../../textbook_library/lib/include/pic24_clockfreq.h  \
+ ../../textbook_library/lib/include/pic24_delay.h  \
+ ../../textbook_library/lib/include/pic24_util.h  \
+ ../../textbook_library/lib/include/pic24_ports.h  \
+ ../../textbook_library/lib/include/pic24_ports_mapping.h  \
+ ../../textbook_library/lib/include/pic24_ports_config.h  \
+ ../../textbook_library/lib/include/pic24_uart.h  \
+ ../../textbook_library/lib/include/pic24_serial.h  \
+ ../../textbook_library/lib/include/pic24_timer.h  \
+ ../../textbook_library/lib/include/pic24_i2c.h  \
+ ../../textbook_library/lib/include/pic24_spi.h  \
+ ../../textbook_library/lib/include/pic24_adc.h  \
+ ../../textbook_library/lib/include/pic24_dma.h  \
+ ../../textbook_library/lib/include/pic24_ecan.h  \
+ ../../textbook_library/lib/include/pic24_unions.h  \
+ ../../textbook_library/lib/include/pic24_flash.h  \
+ ../../textbook_library/lib/include/pic24_comparator.h 
