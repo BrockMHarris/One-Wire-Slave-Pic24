@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include "pic24_all.h"
 
+// #include "lib/include/1-wire/Config.h"
+unsigned char macro_delay;
+
 #define LED1 (_LATA0)
 #define one_wire (_RB13) //PIN RB 13
 #define byte unsigned char
@@ -16,16 +19,15 @@ volatile state_t current_state = WAIT_FOR_RESET; //DEFAULT TO WAIT FOR RESET
 volatile byte can_read = 1;
 
 //HARD CODED SERIAL NUMBER
-//byte serial_number[8] = {0x28, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02};
-//byte serial_number[8] = {0x28,0x00, 0x00, 0x08, 0xaa, 0xaa, 0x8d, 0x19};
-byte serial_number[8] = {0x28, 0x8d, 0xaa, 0xaa, 0x08, 0x00, 0x00, 0xa7};
-//byte serial_number[8] = {0x02,0x00,0x00,0x00,0x00,0x00,0x28};
+byte serial_number[8] = {0x28,0x8d,0xaa,0xaa,0x08,0x00,0x00, 0xa7};
+//byte serial_number[8] = {0x28, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x29};
+
 //HARD CODED SENSOR VALUES
-//const byte scratchpad[10] = {0x00, 0x79, 0x01, 0x4B, 0x46, 0x7F, 0xFF, 0x07, 0x10, 0x70};
 const byte scratchpad[10] = {0x00, 0x7e, 0x01, 0x4B, 0x46, 0x7F, 0xFF, 0x02, 0x10, 0x25};
 
 //FUNCTION PROTOTYPE
 byte detect_reset(void);
+byte detect_presence(void);
 void send_presence_pulse(void);
 byte read_bit (void);
 byte read_byte (void);
@@ -36,12 +38,58 @@ void write_bit(byte write_bitt);
 byte match_search(byte write_bit);
 byte match_bits (byte read_bit);
 
+
+void wait(short time){
+         __asm__ volatile (\
+                    "mov w0, _macro_delay\n"\
+			  "loop: nop\n"\
+					"nop\n"\
+					"nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+					"nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+					"nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+                    "nop\n"\
+					"dec _macro_delay\n"\
+					"bra NZ, loop\n");
+}
+
 //CONFIGURE INPUT
 void config_pb()  {
   CONFIG_RB13_AS_DIG_INPUT();
   ENABLE_RB13_PULLUP();
   // Give the pullup some time to take effect.
-  DELAY_US(1);
+  //DELAY_US(1);
+  wait(1);
 }
 
 
@@ -72,6 +120,7 @@ void _ISR _CNInterrupt(void) {
             //CHECK IF MASTEr sends a reset pulse
             if (detect_reset()) {
                 //send a presence pulse and wait for ROM command
+                //wait(30);
                 send_presence_pulse();
                 current_state = ROM_CMD;
             }
@@ -199,23 +248,27 @@ void _ISR _CNInterrupt(void) {
 }
 
 byte detect_reset(void) {
-    DELAY_US(20);
-    if (!one_wire){
-        DELAY_US(490);
-        if (one_wire){
-            DELAY_US(30);
-            return 1;
-        } else {
-            return 0;
-        }
+    //DELAY_US(20);
+    int i;
+    for(i = 0; i<50; i++){
+        wait(9);
+        if(one_wire){return 0;}
     }
-    return 0;
+    wait(35);
+    if(!one_wire){return 0;}
+    //LED1 = ~LED1;
+    wait(30);
+    //LED1 = ~LED1;
+    return 1;
 }
 
 void send_presence_pulse(void) {
+    //LED1=1;
     pull_bus_low();
-    DELAY_US(130);
+    //DELAY_US(130);
+    wait(130);
     release_bus();
+    //LED1=0;
 }
 
 void pull_bus_low(void) {
@@ -230,14 +283,17 @@ void release_bus(void) {
 byte read_bit (void) {
     //LED1 = 1;
     byte read_data;
-    DELAY_US(25);
+    //DELAY_US(25);
+    wait(25);
     read_data = one_wire;
-    DELAY_US(20);
+    //DELAY_US(20);
+    wait(20);
     //LED1 = 0;
     if (one_wire){
         return read_data;
     }
-    DELAY_US(25);
+    //DELAY_US(25);
+    wait(25);
     if (one_wire) {
         return read_data;
     }
@@ -284,23 +340,28 @@ byte read_byte (void) {
 void write_bit(byte write_bitt) {
     LED1 = 1;
     if (write_bitt) {
-        DELAY_US(60);
+        //DELAY_US(60);
+        wait(75);
     } else {
         pull_bus_low();
-        DELAY_US(60);
+        //DELAY_US(60);
+        wait(60);
         release_bus();
     }
     LED1 = 0;
 }
 
 byte match_bits (byte read_bitt) {
+    //LED1 = 1;
 	byte result=0;
 	if (read_bit() == read_bitt)		// read bit on 1-wire line and compare with current one
-		result = 1;						// match
+		result = 1;	// match
+    //LED1 =0;
 	return result;
 }
 
 byte match_search (byte write_bitt) {
+    //LED1 = 1;
     byte res = 0;
     write_bit(write_bitt);
     while(one_wire);
@@ -311,6 +372,7 @@ byte match_search (byte write_bitt) {
     } else {
         res = 0;
     }
+    //LED1 =0;
     return res;
 }
 
@@ -348,7 +410,8 @@ int main(void) {
     config_cn();
     LED1 = 0;
     while (1) {
-        DELAY_US(1000);
+        //DELAY_US(1000);
+        wait(1000);
 //        LED1=~LED1;
         // Enter a low-power state, which still keeps timer3 and uart1 running.
         // Enter code to do stuff here, communications are handled via interrupts.
