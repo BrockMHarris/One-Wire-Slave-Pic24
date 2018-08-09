@@ -208,8 +208,19 @@ void _ISR _CNInterrupt(void) {
                     i++;
                 }
                 //basically write the serial number onto the bus
+			/* When the master is first identifying which devices are connected
+             * to the bus it will send out an 0xF0 command. Every slave on the bus
+             * will then respond by sending the first bit of there serial number
+             * (notice that is the last bit of the first byte because of LSB to MSB)
+             * at the same time they will then send the inverse of that bit to the bus
+             * The master will then respond with either a 1 or a 0 and every device
+             * whos bit did not match the master's bit shuts up and waits for the
+             * next cycle. The devices that still remain send their next bit and so
+             * on until they send their full serial number with the CRC. The master
+             * can now identify them.
+             */
             } else if (0xEC <= buffer && buffer <= 0xF4){ //search rom command
-                ;
+                ; //NOOP to keep the compiler happy for some reason
                 //LED1 = 1;
                 //unfolded to increase speed
                 int i_2 = 0;
@@ -267,9 +278,13 @@ void _ISR _CNInterrupt(void) {
                 }
                 buffer = 0;
                 //LED1 = 0;
-                current_state = WAIT_FOR_RESET;
+                current_state = WAIT_FOR_RESET; //Goes back to reset because other
+                                                //devices need to be identified
                 _CNIF = 0;
                 return;
+			/* This command is used to identify device right before a rom command
+             * is sent. its saying i want to talk to you -> slave Number 69
+             */
             } else if (0x53 <= buffer && buffer <= 0x57){ //match rom command
                 ;
                 int i_3 = 0;
@@ -291,11 +306,17 @@ void _ISR _CNInterrupt(void) {
                 }
                 buffer = 0;
                 current_state = FUNCTION_CMD;
+			/* This command is sent when there is only one slave on the bus so
+             * the master does not need to identify it through its serial number
+             */
             } else if (0xCA <= buffer && buffer <= 0xCE){ //skip rom command
                 buffer = 0;
                 current_state = FUNCTION_CMD;
             }
         break;
+	/* This is where the magic happens. This state is used for sending and receiving
+     * data between one particular slave and the master.
+     */
     case FUNCTION_CMD:
         buffer = read_byte();
         if (0x42 <= buffer && buffer <= 0x46){
@@ -339,6 +360,10 @@ void _ISR _CNInterrupt(void) {
  _CNIE = 1;
 }
 
+/*
+ * this checks to see if there was a reset signal sent from the master.
+ * the reset sequence is low for a long time the high again.
+ */
 byte detect_reset(void) {
     //DELAY_US(20);
     int i;
@@ -353,7 +378,10 @@ byte detect_reset(void) {
     //LED1 = ~LED1;
     return 1;
 }
-
+/*
+ *	This is a confirmation for reset from the slave. This tells the master that
+ *  there is at least one slave on the bus
+ */
 void send_presence_pulse(void) {
     //LED1=1;
     pull_bus_low();
@@ -363,16 +391,36 @@ void send_presence_pulse(void) {
     //LED1=0;
 }
 
+/*
+ *	This sets the bus low, and configure the pin to be an output so that this 
+ *  device can write to the bus
+ */
 void pull_bus_low(void) {
     CONFIG_RB13_AS_DIG_OUTPUT();
     ENABLE_RB13_OPENDRAIN();
     one_wire = 0;
 }
 
+/*
+ * resets the pin on the pic to an input so that data can be read off the bus
+ * resets the change notification interrupt to be ready the next time the master
+ *      writes to the slave
+ */
 void release_bus(void) {
     config_pb();
     config_cn();
 }
+
+/*
+ *  Stores the bus data then returns it if the bus goes high 20us or 45us later
+ * 
+ * how the master writes bits to the slave:
+ *      Write 1: Drive bus low, delay 6 ?s.
+ *               Release bus, delay 64 ?s.
+ * 
+ *      write 0: Drive bus low, delay 60 ?s.
+ *               Release bus, delay 10 ?s.
+ */
 byte read_bit (void) {
     //LED1 = 1;
     byte read_data;
@@ -393,6 +441,12 @@ byte read_bit (void) {
     //return read_data;
 }
 
+/* 
+ * puts a 1 into each of the bits of the byte based on whether readbit() is high or low
+ * returns the resulting byte
+ * 
+ *  if the bit is a 1 then results is save to 10000000 then shifts results by 1 until the bus is high (due to pullup)
+ */
 byte read_byte (void) {
 	// I unfold this and some other loops to meet very strict time limits
     //LED1= 1;
@@ -431,7 +485,15 @@ byte read_byte (void) {
 	return result;
 }
 
-
+/*
+ * if the bit to write is a 1 then the bus pin is set to be an output and
+ *      the bus remains high for 60(time units)
+ * if the bit is low then this pulls the bus low for 60(time units) and then releases
+ *      the bus setting it back to an input
+ * The master initiates all contact with the slave. When the master is looking for
+ * a bit from the slave it will pull the bus low for around 6us and then release it
+ * the slave will then respond by keeping the bus low or by letting it pull up.
+ */
 void write_bit(byte write_bitt) {
     //LED1 = 1;
     if (write_bitt) {
@@ -446,6 +508,10 @@ void write_bit(byte write_bitt) {
     //LED1 = 0;
 }
 
+/*
+ * 	This compares bit read in through the bus to a byte input. If they are they 
+ *      same returns true
+ */
 byte match_bits (byte read_bitt) {
     //LED1 = 1;
 	byte result=0;
@@ -455,6 +521,10 @@ byte match_bits (byte read_bitt) {
 	return result;
 }
 
+/* sends the bit of data and then sends the inverse. It then checks what the master
+ * sent back. if the master sends a bit that matches what the slave sent then this
+ * function returns a 1 otherwise it returns a 0;'
+ */
 byte match_search (byte write_bitt) {
     //LED1 = 1;
     byte res = 0;
@@ -472,6 +542,14 @@ byte match_search (byte write_bitt) {
     //return res;
 }
 
+/*
+ * writes the bit value least significant bit to most significant bit.
+ * 
+ * if i want to write 10110110 this is first anded with 00000001 so that only
+ *      the last bit is sent to the write_bit() function
+ * we then shift the value down by one to be 01011011 and do it again until all
+ *      the bits have been written
+ */
 void write_byte (byte write_data)
 {
     //LED1 = 1;
