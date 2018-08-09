@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=../lib/src/pic24_stdio_uart.c ../lib/src/dataXferImpl.c ../lib/src/pic24_clockfreq.c ../lib/src/pic24_util.c ../lib/src/pic24_serial.c ../lib/src/pic24_ecan.c ../lib/src/pic24_spi.c ../lib/src/pic24_flash.c ../lib/src/pic24_adc.c ../lib/src/pic24_configbits.c ../lib/src/pic24_uart.c ../lib/src/pic24_timer.c ../lib/src/dataXfer.c ../lib/src/pic24_i2c.c ../pic_slave_test.c
+SOURCEFILES_QUOTED_IF_SPACED=../lib/src/pic24_stdio_uart.c ../lib/src/dataXferImpl.c ../lib/src/pic24_clockfreq.c ../lib/src/pic24_util.c ../lib/src/pic24_serial.c ../lib/src/pic24_ecan.c ../lib/src/pic24_spi.c ../lib/src/pic24_flash.c ../lib/src/pic24_adc.c ../lib/src/pic24_configbits.c ../lib/src/pic24_uart.c ../lib/src/pic24_timer.c ../lib/src/dataXfer.c ../lib/src/pic24_i2c.c ../pic_slave.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/1516276213/pic24_stdio_uart.o ${OBJECTDIR}/_ext/1516276213/dataXferImpl.o ${OBJECTDIR}/_ext/1516276213/pic24_clockfreq.o ${OBJECTDIR}/_ext/1516276213/pic24_util.o ${OBJECTDIR}/_ext/1516276213/pic24_serial.o ${OBJECTDIR}/_ext/1516276213/pic24_ecan.o ${OBJECTDIR}/_ext/1516276213/pic24_spi.o ${OBJECTDIR}/_ext/1516276213/pic24_flash.o ${OBJECTDIR}/_ext/1516276213/pic24_adc.o ${OBJECTDIR}/_ext/1516276213/pic24_configbits.o ${OBJECTDIR}/_ext/1516276213/pic24_uart.o ${OBJECTDIR}/_ext/1516276213/pic24_timer.o ${OBJECTDIR}/_ext/1516276213/dataXfer.o ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o ${OBJECTDIR}/_ext/1472/pic_slave_test.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/1516276213/pic24_stdio_uart.o.d ${OBJECTDIR}/_ext/1516276213/dataXferImpl.o.d ${OBJECTDIR}/_ext/1516276213/pic24_clockfreq.o.d ${OBJECTDIR}/_ext/1516276213/pic24_util.o.d ${OBJECTDIR}/_ext/1516276213/pic24_serial.o.d ${OBJECTDIR}/_ext/1516276213/pic24_ecan.o.d ${OBJECTDIR}/_ext/1516276213/pic24_spi.o.d ${OBJECTDIR}/_ext/1516276213/pic24_flash.o.d ${OBJECTDIR}/_ext/1516276213/pic24_adc.o.d ${OBJECTDIR}/_ext/1516276213/pic24_configbits.o.d ${OBJECTDIR}/_ext/1516276213/pic24_uart.o.d ${OBJECTDIR}/_ext/1516276213/pic24_timer.o.d ${OBJECTDIR}/_ext/1516276213/dataXfer.o.d ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o.d ${OBJECTDIR}/_ext/1472/pic_slave_test.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/1516276213/pic24_stdio_uart.o ${OBJECTDIR}/_ext/1516276213/dataXferImpl.o ${OBJECTDIR}/_ext/1516276213/pic24_clockfreq.o ${OBJECTDIR}/_ext/1516276213/pic24_util.o ${OBJECTDIR}/_ext/1516276213/pic24_serial.o ${OBJECTDIR}/_ext/1516276213/pic24_ecan.o ${OBJECTDIR}/_ext/1516276213/pic24_spi.o ${OBJECTDIR}/_ext/1516276213/pic24_flash.o ${OBJECTDIR}/_ext/1516276213/pic24_adc.o ${OBJECTDIR}/_ext/1516276213/pic24_configbits.o ${OBJECTDIR}/_ext/1516276213/pic24_uart.o ${OBJECTDIR}/_ext/1516276213/pic24_timer.o ${OBJECTDIR}/_ext/1516276213/dataXfer.o ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o ${OBJECTDIR}/_ext/1472/pic_slave.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/1516276213/pic24_stdio_uart.o.d ${OBJECTDIR}/_ext/1516276213/dataXferImpl.o.d ${OBJECTDIR}/_ext/1516276213/pic24_clockfreq.o.d ${OBJECTDIR}/_ext/1516276213/pic24_util.o.d ${OBJECTDIR}/_ext/1516276213/pic24_serial.o.d ${OBJECTDIR}/_ext/1516276213/pic24_ecan.o.d ${OBJECTDIR}/_ext/1516276213/pic24_spi.o.d ${OBJECTDIR}/_ext/1516276213/pic24_flash.o.d ${OBJECTDIR}/_ext/1516276213/pic24_adc.o.d ${OBJECTDIR}/_ext/1516276213/pic24_configbits.o.d ${OBJECTDIR}/_ext/1516276213/pic24_uart.o.d ${OBJECTDIR}/_ext/1516276213/pic24_timer.o.d ${OBJECTDIR}/_ext/1516276213/dataXfer.o.d ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o.d ${OBJECTDIR}/_ext/1472/pic_slave.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/_ext/1516276213/pic24_stdio_uart.o ${OBJECTDIR}/_ext/1516276213/dataXferImpl.o ${OBJECTDIR}/_ext/1516276213/pic24_clockfreq.o ${OBJECTDIR}/_ext/1516276213/pic24_util.o ${OBJECTDIR}/_ext/1516276213/pic24_serial.o ${OBJECTDIR}/_ext/1516276213/pic24_ecan.o ${OBJECTDIR}/_ext/1516276213/pic24_spi.o ${OBJECTDIR}/_ext/1516276213/pic24_flash.o ${OBJECTDIR}/_ext/1516276213/pic24_adc.o ${OBJECTDIR}/_ext/1516276213/pic24_configbits.o ${OBJECTDIR}/_ext/1516276213/pic24_uart.o ${OBJECTDIR}/_ext/1516276213/pic24_timer.o ${OBJECTDIR}/_ext/1516276213/dataXfer.o ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o ${OBJECTDIR}/_ext/1472/pic_slave_test.o
+OBJECTFILES=${OBJECTDIR}/_ext/1516276213/pic24_stdio_uart.o ${OBJECTDIR}/_ext/1516276213/dataXferImpl.o ${OBJECTDIR}/_ext/1516276213/pic24_clockfreq.o ${OBJECTDIR}/_ext/1516276213/pic24_util.o ${OBJECTDIR}/_ext/1516276213/pic24_serial.o ${OBJECTDIR}/_ext/1516276213/pic24_ecan.o ${OBJECTDIR}/_ext/1516276213/pic24_spi.o ${OBJECTDIR}/_ext/1516276213/pic24_flash.o ${OBJECTDIR}/_ext/1516276213/pic24_adc.o ${OBJECTDIR}/_ext/1516276213/pic24_configbits.o ${OBJECTDIR}/_ext/1516276213/pic24_uart.o ${OBJECTDIR}/_ext/1516276213/pic24_timer.o ${OBJECTDIR}/_ext/1516276213/dataXfer.o ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o ${OBJECTDIR}/_ext/1472/pic_slave.o
 
 # Source Files
-SOURCEFILES=../lib/src/pic24_stdio_uart.c ../lib/src/dataXferImpl.c ../lib/src/pic24_clockfreq.c ../lib/src/pic24_util.c ../lib/src/pic24_serial.c ../lib/src/pic24_ecan.c ../lib/src/pic24_spi.c ../lib/src/pic24_flash.c ../lib/src/pic24_adc.c ../lib/src/pic24_configbits.c ../lib/src/pic24_uart.c ../lib/src/pic24_timer.c ../lib/src/dataXfer.c ../lib/src/pic24_i2c.c ../pic_slave_test.c
+SOURCEFILES=../lib/src/pic24_stdio_uart.c ../lib/src/dataXferImpl.c ../lib/src/pic24_clockfreq.c ../lib/src/pic24_util.c ../lib/src/pic24_serial.c ../lib/src/pic24_ecan.c ../lib/src/pic24_spi.c ../lib/src/pic24_flash.c ../lib/src/pic24_adc.c ../lib/src/pic24_configbits.c ../lib/src/pic24_uart.c ../lib/src/pic24_timer.c ../lib/src/dataXfer.c ../lib/src/pic24_i2c.c ../pic_slave.c
 
 
 CFLAGS=
@@ -186,12 +186,12 @@ ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o: ../lib/src/pic24_i2c.c  nbproject/Make
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../lib/src/pic24_i2c.c  -o ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1516276213/pic24_i2c.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1    -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"../lib/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1516276213/pic24_i2c.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
-${OBJECTDIR}/_ext/1472/pic_slave_test.o: ../pic_slave_test.c  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/_ext/1472/pic_slave.o: ../pic_slave.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
-	@${RM} ${OBJECTDIR}/_ext/1472/pic_slave_test.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1472/pic_slave_test.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../pic_slave_test.c  -o ${OBJECTDIR}/_ext/1472/pic_slave_test.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/pic_slave_test.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1    -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"../lib/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
-	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/pic_slave_test.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	@${RM} ${OBJECTDIR}/_ext/1472/pic_slave.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1472/pic_slave.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../pic_slave.c  -o ${OBJECTDIR}/_ext/1472/pic_slave.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/pic_slave.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1    -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"../lib/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/pic_slave.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 else
 ${OBJECTDIR}/_ext/1516276213/pic24_stdio_uart.o: ../lib/src/pic24_stdio_uart.c  nbproject/Makefile-${CND_CONF}.mk
@@ -292,12 +292,12 @@ ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o: ../lib/src/pic24_i2c.c  nbproject/Make
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../lib/src/pic24_i2c.c  -o ${OBJECTDIR}/_ext/1516276213/pic24_i2c.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1516276213/pic24_i2c.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"../lib/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1516276213/pic24_i2c.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
-${OBJECTDIR}/_ext/1472/pic_slave_test.o: ../pic_slave_test.c  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/_ext/1472/pic_slave.o: ../pic_slave.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
-	@${RM} ${OBJECTDIR}/_ext/1472/pic_slave_test.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1472/pic_slave_test.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../pic_slave_test.c  -o ${OBJECTDIR}/_ext/1472/pic_slave_test.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/pic_slave_test.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"../lib/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
-	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/pic_slave_test.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	@${RM} ${OBJECTDIR}/_ext/1472/pic_slave.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1472/pic_slave.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../pic_slave.c  -o ${OBJECTDIR}/_ext/1472/pic_slave.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/pic_slave.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -I"../lib/include" -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/pic_slave.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 
