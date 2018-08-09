@@ -19,8 +19,8 @@ volatile state_t current_state = WAIT_FOR_RESET; //DEFAULT TO WAIT FOR RESET
 volatile byte can_read = 1;
 
 //HARD CODED SERIAL NUMBER
-byte serial_number[8] = {0x28,0x8d,0xaa,0xaa,0x08,0x00,0x00, 0xa7};
-//byte serial_number[8] = {0x28, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x29};
+//byte serial_number[8] = {0x28,0x8d,0xaa,0xaa,0x08,0x00,0x00, 0xa7};
+byte serial_number[8] = {0x28, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x29};
 
 //HARD CODED SENSOR VALUES
 const byte scratchpad[10] = {0x00, 0x7e, 0x01, 0x4B, 0x46, 0x7F, 0xFF, 0x02, 0x10, 0x25};
@@ -86,7 +86,9 @@ void wait(short time){
 //CONFIGURE INPUT
 void config_pb()  {
   CONFIG_RB13_AS_DIG_INPUT();
-  ENABLE_RB13_PULLUP();
+  //ENABLE_RB13_PULLUP();
+  //_ODCB13 = 1;
+  ENABLE_RB13_OPENDRAIN();
   // Give the pullup some time to take effect.
   //DELAY_US(1);
   wait(1);
@@ -100,6 +102,7 @@ void config_cn(void) {
   // Enable change notifications on RB13 specifically.
   ENABLE_RB13_CN_INTERRUPT();
   // Clear the interrupt flag.
+  CNPU1bits.CN13PUE = 0;
   _CNIF = 0;
   // Choose a priority.
   _CNIP = 1;
@@ -112,6 +115,7 @@ void config_cn(void) {
 // Change notification
 // -------------------
 void _ISR _CNInterrupt(void) {
+    //LED1 = 1;
   _CNIF = 0;
   _CNIE = 0;
   byte buffer;
@@ -123,9 +127,11 @@ void _ISR _CNInterrupt(void) {
                 //wait(30);
                 send_presence_pulse();
                 current_state = ROM_CMD;
+                //wait(20);
             }
             break;
         case ROM_CMD:
+            while(one_wire);
             buffer = read_byte();
             if (0x31 <= buffer && buffer <= 0x35) { //read rom command
                 ;
@@ -244,6 +250,7 @@ void _ISR _CNInterrupt(void) {
         buffer = 0;
         current_state = WAIT_FOR_RESET;
 }
+    //LED1 =0;
  _CNIE = 1;
 }
 
@@ -273,6 +280,7 @@ void send_presence_pulse(void) {
 
 void pull_bus_low(void) {
     CONFIG_RB13_AS_DIG_OUTPUT();
+    ENABLE_RB13_OPENDRAIN();
     one_wire = 0;
 }
 
@@ -302,6 +310,7 @@ byte read_bit (void) {
 
 byte read_byte (void) {
 	// I unfold this and some other loops to meet very strict time limits
+    LED1= 1;
 	byte result=0;
 	if (read_bit())
 		result |= 0x80;				// if result is one, then set MS-bit
@@ -333,12 +342,13 @@ byte read_byte (void) {
 	result >>= 1;
 	if (read_bit())
 		result |= 0x80;
+    LED1 =0;
 	return result;
 }
 
 
 void write_bit(byte write_bitt) {
-    LED1 = 1;
+    //LED1 = 1;
     if (write_bitt) {
         //DELAY_US(60);
         wait(75);
@@ -348,7 +358,7 @@ void write_bit(byte write_bitt) {
         wait(60);
         release_bus();
     }
-    LED1 = 0;
+    //LED1 = 0;
 }
 
 byte match_bits (byte read_bitt) {
@@ -367,13 +377,14 @@ byte match_search (byte write_bitt) {
     while(one_wire);
     write_bit(write_bitt ^ 0x01);
     while(one_wire);
-    if (read_bit() == write_bitt) {
-        res = 1;
-    } else {
-        res = 0;
-    }
+    return match_bits(write_bitt);
+//    if (read_bit() == write_bitt) {
+//        res = 1;
+//    } else {
+//        res = 0;
+//    }
     //LED1 =0;
-    return res;
+    //return res;
 }
 
 void write_byte (byte write_data)
