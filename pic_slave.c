@@ -20,11 +20,13 @@ volatile byte can_read = 1;
 
 //HARD CODED SERIAL NUMBER
 //byte serial_number[8] = {0x28,0x8d,0xaa,0xaa,0x08,0x00,0x00, 0xa7};
-byte serial_number[8] = {0x28, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x29};
+byte serial_number[8] = {0x28, 0xD5, 0xCC, 0x8C, 0x09, 0x00, 0x00}; // 0xF4
 
 //HARD CODED SENSOR VALUES
 const byte scratchpad[10] = {0x00, 0x7e, 0x01, 0x4B, 0x46, 0x7F, 0xFF, 0x02, 0x10, 0x25};
+//byte scratchpad[10] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+byte memory[4];
 //FUNCTION PROTOTYPE
 byte detect_reset(void);
 byte detect_presence(void);
@@ -37,8 +39,13 @@ void write_byte (byte write_data);
 void write_bit(byte write_bitt);
 byte match_search(byte write_bit);
 byte match_bits (byte read_bit);
+byte CalcCRC(byte code_len, byte *code);
+void C_CRC(byte *CRCVal, byte value);
 
-
+/* semi accurate timing for 40Mhz clock.
+ * equivalent to 1.6us for 1 loop, 10.6us for 10 loops, 100.6us for 100 loops
+ * Brock Harris: 7/31/18
+ */
 void wait(short time){
          __asm__ volatile (\
                     "mov w0, _macro_delay\n"\
@@ -83,12 +90,16 @@ void wait(short time){
 					"bra NZ, loop\n");
 }
 
-//CONFIGURE INPUT
+/*
+ * configures the pull up for the pin connected to the bus and sets it up as an input
+ */
 void config_pb()  {
   CONFIG_RB13_AS_DIG_INPUT();
   //ENABLE_RB13_PULLUP();
   //_ODCB13 = 1;
-  ENABLE_RB13_OPENDRAIN();
+  ENABLE_RB13_OPENDRAIN(); //disables the internal pullup resistor because we
+                           //are using an external pullup resistor connected to
+                           //the the bus
   // Give the pullup some time to take effect.
   //DELAY_US(1);
   wait(1);
@@ -112,26 +123,81 @@ void config_cn(void) {
   CONFIG_RA0_AS_DIG_OUTPUT(); //configure LEDs
 }
 
+/* CRC calculator. Maxim uses a Dow CRC to check that the data was transfered
+ * appropriately. The CRC is appended to the end of the Serial ID and the temperature
+ * that is sent on the bus.
+ * Brock Harris: 7/31/18
+ */
+static byte crc88540_table[256] = {
+    0, 94,188,226, 97, 63,221,131,194,156,126, 32,163,253, 31, 65,
+  157,195, 33,127,252,162, 64, 30, 95,  1,227,189, 62, 96,130,220,
+   35,125,159,193, 66, 28,254,160,225,191, 93,  3,128,222, 60, 98,
+  190,224,  2, 92,223,129, 99, 61,124, 34,192,158, 29, 67,161,255,
+   70, 24,250,164, 39,121,155,197,132,218, 56,102,229,187, 89,  7,
+  219,133,103, 57,186,228,  6, 88, 25, 71,165,251,120, 38,196,154,
+  101, 59,217,135,  4, 90,184,230,167,249, 27, 69,198,152,122, 36,
+  248,166, 68, 26,153,199, 37,123, 58,100,134,216, 91,  5,231,185,
+  140,210, 48,110,237,179, 81, 15, 78, 16,242,172, 47,113,147,205,
+   17, 79,173,243,112, 46,204,146,211,141,111, 49,178,236, 14, 80,
+  175,241, 19, 77,206,144,114, 44,109, 51,209,143, 12, 82,176,238,
+   50,108,142,208, 83, 13,239,177,240,174, 76, 18,145,207, 45,115,
+  202,148,118, 40,171,245, 23, 73,  8, 86,180,234,105, 55,213,139,
+   87,  9,235,181, 54,104,138,212,149,203, 41,119,244,170, 72, 22,
+  233,183, 85, 11,136,214, 52,106, 43,117,151,201, 74, 20,246,168,
+  116, 42,200,150, 21, 75,169,247,182,232, 10, 84,215,137,107, 53
+};
+
+/* Call this function and provide an array to get the Dow CRC of that array.
+ * Brock Harris: 7/31/18
+ */
+byte get_crc(byte *data, byte count)
+{
+    byte result=0; 
+
+    while(count--) {
+      result = crc88540_table[result ^ *data++];
+    }
+    
+    return result;
+}
+
 // Change notification
 // -------------------
+/*	Function:  _CNInterrupt
+ *	--------------------------------------------
+ *	This is a state machine with 3 states:
+ *		WAIT_FOR_RESET,
+ *  	ROM_CMD,
+ *  	FUNCTION_CMD
+ *	inputs are:
+ *		detect_reset()
+ *		read_byte()
+ *		one_wire (pin RB 13)
+ */
 void _ISR _CNInterrupt(void) {
     //LED1 = 1;
   _CNIF = 0;
   _CNIE = 0;
   byte buffer;
     switch (current_state) {
+        /* Stays in this state until a valid reset is detected by the slave. Then
+         * sends a presence pulse. all the devices on the bus send a presence
+         * pulse at the same time. o the maset 
+         */
         case WAIT_FOR_RESET:
             //CHECK IF MASTEr sends a reset pulse
             if (detect_reset()) {
                 //send a presence pulse and wait for ROM command
-                //wait(30);
                 send_presence_pulse();
+                can_read = 1; //Function commands are valid
                 current_state = ROM_CMD;
                 //wait(20);
             }
             break;
         case ROM_CMD:
-            while(one_wire);
+            while(one_wire); //wait for a falling edge to begin reading. This is a hack
+                            //when multiple pic on the same bus one pic would trigger
+                            //right after presense was over 
             buffer = read_byte();
             if (0x31 <= buffer && buffer <= 0x35) { //read rom command
                 ;
@@ -228,7 +294,7 @@ void _ISR _CNInterrupt(void) {
             } else if (0xCA <= buffer && buffer <= 0xCE){ //skip rom command
                 buffer = 0;
                 current_state = FUNCTION_CMD;
-        }
+            }
         break;
     case FUNCTION_CMD:
         buffer = read_byte();
@@ -244,6 +310,25 @@ void _ISR _CNInterrupt(void) {
                     write_byte(scratchpad[i_4]);
                     i_4++;
                 }
+                can_read = 0;
+            }
+            //LED1 = ~LED1;
+            //scratchpad[9] = LED1;
+        }
+        
+        /* Checks for the 4E command which is sent to the slave when the master
+         * is trying to write to it. in the case of the temperature sensor
+         * the master con only write a 9-12 to the slave and this is represented
+         * by memory[2] as either a 1f, 3F, 5F, or a 7F 
+         */
+        else if (buffer == 0x4E){
+            /* can_read is high when neither the write or read from the slave's
+             *  scratch pad has occured. This is reset when a reset pulse is detected
+             */
+            if(can_read == 1){ 
+                memory[0] = read_byte();
+                memory[1] = read_byte();
+                memory[2] = read_byte();
                 can_read = 0;
             }
         }
@@ -310,7 +395,7 @@ byte read_bit (void) {
 
 byte read_byte (void) {
 	// I unfold this and some other loops to meet very strict time limits
-    LED1= 1;
+    //LED1= 1;
 	byte result=0;
 	if (read_bit())
 		result |= 0x80;				// if result is one, then set MS-bit
@@ -342,7 +427,7 @@ byte read_byte (void) {
 	result >>= 1;
 	if (read_bit())
 		result |= 0x80;
-    LED1 =0;
+    //LED1 =0;
 	return result;
 }
 
@@ -389,6 +474,8 @@ byte match_search (byte write_bitt) {
 
 void write_byte (byte write_data)
 {
+    //LED1 = 1;
+    wait(2);
 		write_bit(write_data & 0x01); 	// sending LS-bit first
 		while(one_wire);							// wait for master set bus low
 		write_data >>= 1;					// shift the data byte for the next bit to send
@@ -411,11 +498,13 @@ void write_byte (byte write_data)
 		while(one_wire);
 		write_data >>= 1;
 		write_bit(write_data & 0x01);
+        //LED1 = 0;
 }
 // Main
 // ====
 int main(void) {
     configBasic(HELLO_MSG);
+    serial_number[7] = get_crc(serial_number, 7);
     //configClockFRCPLL_FCY40MHz();
     config_pb();
     config_cn();
