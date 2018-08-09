@@ -114,6 +114,7 @@ void config_cn(void) {
   // Enable change notifications on RB13 specifically.
   ENABLE_RB13_CN_INTERRUPT();
   // Clear the interrupt flag.
+  IPC4bits.CNIP = 2;
   CNPU1bits.CN13PUE = 0;
   _CNIF = 0;
   // Choose a priority.
@@ -160,6 +161,72 @@ byte get_crc(byte *data, byte count)
     }
     
     return result;
+}
+/* This is an attempt to detect the reset on the bus independantly of the main state
+ * machine. when the master is confused dueing any step it sends a reset and the
+ * slave is not always prepared to detect this reset. To remedy this i am trying to
+ * interupt when the bus goes low and when the bus returns to high. I them measure
+ * the time between these two events and determine if it is long enought to be a reset
+ * 
+ * Warning: this is currently not functional so use a different version
+ */
+void configIC1(){
+    IC1CONbits.ICM = 0b010; //interrupt on every falling edge
+    IC1CONbits.ICTMR = 1; //Selects Timer 2
+    IC1CONbits.ICI = 0; //interrupt on every capture event
+    _IC1R = 0b1101; //look at pin RP13
+    _IC1IE = 1;
+    _IC1IF = 0;
+    //IC1CONbits.ON = 1;
+    IPC0bits.IC1IP = 1; //Sets this interrupt to priority 1
+}
+
+void configIC2(){
+    IC2CONbits.ICM = 0b011; //interrupt on every rising edge
+    IC2CONbits.ICTMR = 1; //Selects Timer 2
+    IC2CONbits.ICI = 0; //interrupt on every capture event
+    _IC2R = 0b1101; //look at pin RP13
+    _IC2IE = 1;
+    _IC2IF = 0;
+    //IC1CONbits.ON = 1;
+    IPC1bits.IC2IP = 1; //Sets this interrupt to priority 1
+}
+
+void configTimer2(){
+    T2CON = 0x00; //Stops the Timer1 and reset control reg.
+    TMR2 = 0x00; //Clear contents of the timer register
+    PR2 = 0xFFFF; //Load the Period register with the value 0xFFFF
+    IPC1bits.T2IP = 0x01; //Setup Timer1 interrupt for desired priority level
+    // (This example assigns level 1 priority)
+    IFS0bits.T2IF = 0; //Clear the Timer1 interrupt status flag
+    IEC0bits.T2IE = 1; //Enable Timer1 interrupts
+    T2CONbits.TON = 1; //Start Timer1 with prescaler settings at 1:1 and
+}
+
+unsigned int Capture1, Capture2;
+
+void _ISR _IC1Interrupt(void)
+{
+    LED1=~LED1;
+    IFS0bits.IC1IF  =  0;              // Reset respective interrupt flag
+    Capture1 = IC1BUF;         // Read and save off first capture entry
+}
+
+void _ISR _IC2Interrupt(void)
+{
+    IFS0bits.IC2IF  =  0;
+    Capture2 = IC1BUF;         // Read and save off second capture entry
+    if(Capture2 - Capture1 > 0x5000 && Capture2 > Capture1){
+        send_presence_pulse();
+        can_read = 1; //Function commands are valid
+        current_state = ROM_CMD;
+    }
+}
+
+void _ISR _T2Interrupt(void)
+{
+    /* Interrupt Service Routine code goes here */
+    IFS0bits.T2IF = 0; //Reset Timer2 interrupt flag and Return from ISR
 }
 
 // Change notification
@@ -371,15 +438,18 @@ void _ISR _CNInterrupt(void) {
  */
 byte detect_reset(void) {
     //DELAY_US(20);
-    int i;
-    for(i = 0; i<50; i++){
-        wait(9);
-        if(one_wire){return 0;}
-    }
-    wait(35);
-    if(!one_wire){return 0;}
-    //LED1 = ~LED1;
-    wait(30);
+//    int i;
+//    for(i = 0; i<50; i++){
+//        wait(9);
+//        if(one_wire){return 0;}
+//    }
+//    wait(35);
+//    if(!one_wire){return 0;}
+//    if(temp == 0){return 0;}
+//    LED1=~LED1;
+//    if(Capture2 - Capture1 < 0x3A98){return 0;} //40*500 == 4E20 I brought it down to 0x3A98 for good measure
+//    //LED1 = ~LED1;
+//    wait(30);
     //LED1 = ~LED1;
     return 1;
 }
@@ -591,6 +661,9 @@ int main(void) {
     //configClockFRCPLL_FCY40MHz();
     config_pb();
     config_cn();
+    configTimer2();
+    configIC1();
+    configIC2();
     LED1 = 0;
     while (1) {
         //DELAY_US(1000);
