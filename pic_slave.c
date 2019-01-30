@@ -350,11 +350,11 @@ void _ISR _CNInterrupt(void) {
                 memory[0] = read_byte();
                 memory[1] = read_byte();
                 memory[2] = read_byte();
-                //memory[3] = read_byte();
+                memory[3] = read_byte();
                 scratchpad[5] = memory[0];
                 scratchpad[6] = memory[1];
                 scratchpad[7] = memory[2];
-                //scratchpad[8] = memory[3];
+                scratchpad[8] = memory[3];
                 scratchpad[9] = get_crc(scratchpad, 9);
                 can_read = 0;
                 LED1 = ~LED1;
