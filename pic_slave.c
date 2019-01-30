@@ -20,11 +20,11 @@ volatile byte can_read = 1;
 
 //HARD CODED SERIAL NUMBER
 //byte serial_number[8] = {0x28,0x8d,0xaa,0xaa,0x08,0x00,0x00, 0xa7};
-byte serial_number[8] = {0x28, 0xD5, 0xCC, 0x8C, 0x09, 0x00, 0x00}; // 0xF4
+byte serial_number[8] = {0x28, 0xD5, 0xCC, 0x8C, 0x09, 0x00, 0x01}; // 0xF4
 
 //HARD CODED SENSOR VALUES
-const byte scratchpad[10] = {0x00, 0x7e, 0x01, 0x4B, 0x46, 0x7F, 0xFF, 0x02, 0x10, 0x25};
-//byte scratchpad[10] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+//byte scratchpad[10] = {0x00, 0x7e, 0x01, 0x4B, 0x46, 0x7F, 0xFF, 0x02, 0x10}; //0x25
+byte scratchpad[10] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 byte memory[4];
 //FUNCTION PROTOTYPE
@@ -75,7 +75,6 @@ void wait(short time){
                     "nop\n"\
                     "nop\n"\
 					"nop\n"\
-                    "nop\n"\
                     "nop\n"\
                     "nop\n"\
                     "nop\n"\
@@ -346,11 +345,19 @@ void _ISR _CNInterrupt(void) {
             /* can_read is high when neither the write or read from the slave's
              *  scratch pad has occured. This is reset when a reset pulse is detected
              */
+            LED1 = ~LED1;
             if(can_read == 1){ 
                 memory[0] = read_byte();
                 memory[1] = read_byte();
                 memory[2] = read_byte();
+                //memory[3] = read_byte();
+                scratchpad[5] = memory[0];
+                scratchpad[6] = memory[1];
+                scratchpad[7] = memory[2];
+                //scratchpad[8] = memory[3];
+                scratchpad[9] = get_crc(scratchpad, 9);
                 can_read = 0;
+                LED1 = ~LED1;
             }
         }
         buffer = 0;
@@ -367,14 +374,14 @@ void _ISR _CNInterrupt(void) {
 byte detect_reset(void) {
     //DELAY_US(20);
     int i;
-    for(i = 0; i<50; i++){
+    for(i = 0; i<53; i++){
         wait(9);
         if(one_wire){return 0;}
     }
-    wait(35);
+    wait(7);
+    wait(29);
     if(!one_wire){return 0;}
-    //LED1 = ~LED1;
-    wait(30);
+    //wait(30);
     //LED1 = ~LED1;
     return 1;
 }
@@ -386,7 +393,7 @@ void send_presence_pulse(void) {
     //LED1=1;
     pull_bus_low();
     //DELAY_US(130);
-    wait(130);
+    wait(111);
     release_bus();
     //LED1=0;
 }
@@ -498,11 +505,11 @@ void write_bit(byte write_bitt) {
     //LED1 = 1;
     if (write_bitt) {
         //DELAY_US(60);
-        wait(75);
+        wait(67);
     } else {
         pull_bus_low();
         //DELAY_US(60);
-        wait(60);
+        wait(28);
         release_bus();
     }
     //LED1 = 0;
@@ -583,6 +590,7 @@ void write_byte (byte write_data)
 int main(void) {
     configBasic(HELLO_MSG);
     serial_number[7] = get_crc(serial_number, 7);
+    scratchpad[9] = get_crc(scratchpad, 9);
     //configClockFRCPLL_FCY40MHz();
     config_pb();
     config_cn();
