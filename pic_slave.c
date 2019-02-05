@@ -351,13 +351,13 @@ void _ISR _CNInterrupt(void) {
                 memory[1] = read_byte();
                 memory[2] = read_byte();
                 memory[3] = read_byte();
+                LED1 = ~LED1;
                 scratchpad[5] = memory[0];
                 scratchpad[6] = memory[1];
                 scratchpad[7] = memory[2];
                 scratchpad[8] = memory[3];
                 scratchpad[9] = get_crc(scratchpad, 9);
                 can_read = 0;
-                LED1 = ~LED1;
             }
         }
         buffer = 0;
@@ -597,7 +597,12 @@ int main(void) {
     LED1 = 0;
     while (1) {
         //DELAY_US(1000);
-        wait(1000);
+        if(scratchpad[7] == 0x20){
+            LED1=1;
+        }
+        else{
+            LED1=0;
+        }
 //        LED1=~LED1;
         // Enter a low-power state, which still keeps timer3 and uart1 running.
         // Enter code to do stuff here, communications are handled via interrupts.
